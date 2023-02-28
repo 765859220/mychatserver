@@ -1,7 +1,9 @@
 #include "chatservice.hpp"
 #include "public.hpp"
 #include <muduo/base/Logging.h>
+#include "CAES.h"
 #include <vector>
+#include <iostream>
 using namespace std;
 using namespace muduo;
 
@@ -67,8 +69,15 @@ void ChatService::login(const TcpConnectionPtr &conn, json &js, Timestamp time)
             json response;
             response["msgid"] = LOGIN_MSG_ACK;
             response["errno"] = 2;
-            response["errmsg"] = "this account is using, input another!";
-            conn->send(response.dump());
+            response["errmsg"] = "This account is using, input another!";
+            string str1 = response.dump();
+            char str[1024];
+            strcpy(str, str1.c_str());
+            int encLen = 0;
+            char* enc1 = (char*)_aes->Encrypt(str, strlen(str) + 1, encLen, true);
+            string enc = enc1;
+            std::cout << "已加密:" << enc << endl;
+            conn->send(enc);
         }
         else
         {

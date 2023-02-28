@@ -21,6 +21,7 @@ using json = nlohmann::json;
 #include "group.hpp"
 #include "user.hpp"
 #include "public.hpp"
+#include "CAES.h"
 
 // 记录当前系统登录的用户信息
 User g_currentUser;
@@ -50,6 +51,7 @@ void showCurrentUserData();
 // 聊天客户端程序实现，main线程用作发送线程，子线程用作接收线程
 int main(int argc, char **argv)
 {
+    CAES* aes = new CAES("1234567890abcdef");
     if (argc < 3)
     {
         cerr << "command invalid! example: ./ChatClient 127.0.0.1 6000" << endl;
@@ -123,9 +125,20 @@ int main(int argc, char **argv)
             js["password"] = pwd;
             string request = js.dump();
 
+            char str[1024] = {0};
+            strcpy(str, request.c_str());
+            int slen = strlen(str);
+            int mlen = slen % 16;
+            if(mlen != 0) {
+                strncat((char*)str, "0000000000000000", 16 - mlen);
+            }
+            int encLen = 0;
+            char* enc1 = (char*)aes->Encrypt(str, strlen(str) + 1, encLen, true);
+            string enc = enc1;
+
             g_isLoginSuccess = false;
 
-            int len = send(clientfd, request.c_str(), strlen(request.c_str()) + 1, 0);
+            int len = send(clientfd, enc.c_str(), strlen(enc.c_str()) + 1, 0);
             if (len == -1)
             {
                 cerr << "send login msg error:" << request << endl;
@@ -288,8 +301,16 @@ void readTaskHandler(int clientfd)
 {
     for (;;)
     {
-        char buffer[1024] = {0};
-        int len = recv(clientfd, buffer, 1024, 0);  // 阻塞了
+        CAES* aes = new CAES("1234567890abcdef");
+        char enc[1024] = {0};
+        int decLen = 0, encLen = 0;
+        int len = recv(clientfd, enc, 1024, 0);  // 阻塞了
+
+        cout << "密文" << enc << endl;
+        
+
+        char* buffer = (char*)aes->Decrypt(enc, encLen, decLen);
+        cout << "明文" << buffer << endl;
         if (-1 == len || 0 == len)
         {
             close(clientfd);

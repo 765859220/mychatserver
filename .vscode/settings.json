@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "sstream": "cpp",
+        "regex": "cpp",
+        "iostream": "cpp",
+        "thread": "cpp",
+        "memory": "cpp",
+        "future": "cpp",
+        "istream": "cpp",
+        "functional": "cpp",
+        "ostream": "cpp"
+    },
+    "editor.fontVariations": false
+}

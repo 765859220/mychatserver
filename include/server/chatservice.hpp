@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <functional>
 #include <mutex>
+#include <string>
 #include "usermodel.hpp"
 #include "offlinemessagemodel.hpp"
 #include "friendmodel.hpp"
@@ -14,6 +15,7 @@ using namespace muduo;
 using namespace muduo::net;
 
 #include "redis.hpp"
+#include "CAES.h"
 // #include "groupmodel.hpp"
 // #include "friendmodel.hpp"
 // #include "usermodel.hpp"
@@ -73,6 +75,8 @@ private:
 
     // redis操作对象
     Redis _redis;
+
+    CAES* _aes = new CAES("1234567890abcdef");
 };
 
 #endif

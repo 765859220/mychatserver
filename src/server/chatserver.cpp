@@ -5,6 +5,7 @@
 #include <iostream>
 #include <functional>
 #include <string>
+#include <string.h>
 using namespace std;
 using namespace placeholders;
 using json = nlohmann::json;
@@ -47,10 +48,24 @@ void ChatServer::onMessage(const TcpConnectionPtr &conn,
                            Buffer *buffer,
                            Timestamp time)
 {
-    string buf = buffer->retrieveAllAsString();
-
+    string enc = buffer->retrieveAllAsString();
+    cout << "密文" << enc << endl;
+    int  decLen = 0;
+    char enc1[1024];
+    strcpy(enc1, enc.c_str());
+    //cout << "解密前长度" << strlen(enc1) << endl;
+    int encLen = enc.size();
+    char* buf1 = (char*)_aes->Decrypt(enc1, encLen, decLen);
+    //cout << "解密后长度" << strlen(buf1) << endl;
+    //cout << "明文1" << buf1 << endl;
+    string buf = buf1;
     // 测试，添加json打印代码
-    cout << buf << endl;
+    cout << "明文" << buf << endl;
+    auto index = buf.find('}');
+    if(index != -1) {
+        buf = buf.substr(0, index + 1);
+    }
+    cout << "裁剪后明文" << buf << endl;
 
     // 数据的反序列化
     json js = json::parse(buf);

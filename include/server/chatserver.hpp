@@ -3,6 +3,7 @@
 
 #include <muduo/net/TcpServer.h>
 #include <muduo/net/EventLoop.h>
+#include "CAES.h"
 using namespace muduo;
 using namespace muduo::net;
 
@@ -29,6 +30,7 @@ private:
 
     TcpServer _server; // 组合的muduo库，实现服务器功能的类对象
     EventLoop *_loop;  // 指向事件循环对象的指针
+    CAES* _aes = new CAES("1234567890abcdef");
 };
 
 #endif
